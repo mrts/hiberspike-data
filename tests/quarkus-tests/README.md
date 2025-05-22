@@ -1,5 +1,26 @@
 # quarkus-tests
 
+A Quarkus project for integration testing the HiberSpike Data library.
+
+Before running the tests, you need to build and install the `hiberspike-data`
+library into your local Maven repository.
+
+From the project root directory (where `hiberspike-data/pom.xml` is located), run:
+
+```sh
+mvn install
+```
+
+Then change to the current `quarkus-tests` directory and run:
+
+```sh
+mvn test
+```
+
+Quarkus default README follows.
+
+---
+
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
