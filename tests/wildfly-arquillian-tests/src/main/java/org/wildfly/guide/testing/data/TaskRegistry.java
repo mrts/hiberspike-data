@@ -6,12 +6,11 @@
 package org.wildfly.guide.testing.data;
 
 import java.time.Instant;
-import java.util.Collection;
+import java.util.List;
 
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
+import ee.hiberspike.data.EntityRepository;
+import org.hibernate.annotations.processing.Find;
+
 import jakarta.validation.constraints.NotNull;
 
 import org.wildfly.guide.testing.model.Task;
@@ -19,68 +18,43 @@ import org.wildfly.guide.testing.model.Task;
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-@RequestScoped
-@Transactional
-public class TaskRegistry {
-    @PersistenceContext
-    private EntityManager em;
+public interface TaskRegistry extends EntityRepository<Task, Long> {
+
+    @Find
+    Task findBy(Long id);
 
     /**
      * Returns all available tasks.
      *
      * @return all available tasks
      */
-    public Collection<Task> getTasks() {
-        return em.createNamedQuery("findAll", Task.class).getResultList();
-    }
+    @Find
+    List<Task> getTasks();
+
+    @Find
+    List<Task> getTasks(boolean completed);
+
+    @Find
+    Task getTaskById(long id);
 
     /**
-     * Returns all available tasks.
+     * Adds a task to the repository.
      *
-     * @return all available tasks
+     * @param task the contact to add
+     * @return the task
      */
-    public Collection<Task> getTasks(final boolean completed) {
-        return em.createNamedQuery("findCompleted", Task.class).setParameter("completed", completed).getResultList();
-    }
-
-    public Task getTaskById(final long id) {
-        return em.find(Task.class, id);
+    default Task add(@NotNull Task task) {
+        return save(task);
     }
 
     /**
      * Adds a task to the repository.
      *
      * @param task the contact to add
-     *
      * @return the task
      */
-    public Task add(@NotNull final Task task) {
-        em.persist(task);
-        return task;
-    }
-
-    /**
-     * Adds a task to the repository.
-     *
-     * @param task the contact to add
-     *
-     * @return the task
-     */
-    public Task updateOrAdd(@NotNull final Task task) {
-        if (task.getId() == null) {
-            return add(task);
-        }
-        final Task taskToUpdate = em.find(Task.class, task.getId());
-        if (taskToUpdate != null) {
-            taskToUpdate.setCompleted(task.isCompleted());
-            taskToUpdate.setDescription(task.getDescription());
-            taskToUpdate.setSummary(task.getSummary());
-            taskToUpdate.setUpdated(Instant.now());
-            taskToUpdate.setPriority(task.getPriority());
-            em.merge(taskToUpdate);
-            return null;
-        }
-        return add(task);
+    default Task updateOrAdd(@NotNull Task task) {
+        return save(task);
     }
 
     /**
@@ -88,24 +62,22 @@ public class TaskRegistry {
      *
      * @param id   the task ID
      * @param task the partial task
-     *
      * @return the updated task
      */
-    public Task updateCompleted(final long id, final Task task) {
-        final Task taskToUpdate = em.find(Task.class, id);
+    default Task updateCompleted(final long id, final Task task) {
+        final Task taskToUpdate = findBy(id);
         if (taskToUpdate != null) {
             taskToUpdate.setCompleted(task.isCompleted());
             taskToUpdate.setUpdated(Instant.now());
-            em.merge(taskToUpdate);
-            return taskToUpdate;
+            return save(taskToUpdate);
         }
         throw new IllegalArgumentException("Task with id " + task.getId() + " does not exist");
     }
 
-    public Task remove(final long id) {
-        final Task task = em.find(Task.class, id);
+    default Task remove(final long id) {
+        final Task task = findBy(id);
         if (task != null) {
-            em.remove(task);
+            remove(task);
             return task;
         }
         return null;

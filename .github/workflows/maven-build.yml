@@ -27,5 +27,8 @@ jobs:
       - name: Test
         run: |
           mvn --batch-mode verify install
-          cd tests/quarkus-tests
+          pushd tests/quarkus-tests
+          mvn --batch-mode test
+          popd
+          pushd tests/wildfly-arquillian-tests
           mvn --batch-mode test
