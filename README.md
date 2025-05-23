@@ -12,15 +12,21 @@ DeltaSpike Data is no longer actively maintained and doesn’t officially suppor
 
 ## Why not Jakarta Data 1.0?
 
-[Jakarta Data 1.0](https://jakarta.ee/specifications/data/1.0/) uses stateless sessions, which breaks compatibility
-with Hibernate Envers and lazy loading, and lacks support for Jakarta Persistance annotations.
+[Jakarta Data 1.0](https://jakarta.ee/specifications/data/1.0/) uses stateless
+sessions, which breaks compatibility with Hibernate Envers and lazy loading,
+and lacks support for Jakarta Persistance annotations like `@Persist`, `@Merge`,
+`@Remove` etc that would give access to the corresponding operations of
+`EntityManager`.
 
-These issues will be addressed in the upcoming [Jakarta Data version 1.1](https://jakarta.ee/specifications/data/1.1/), but the 1.1 
-specification is still under development.
+These issues will be addressed in the upcoming [Jakarta Data version 1.1](https://jakarta.ee/specifications/data/1.1/),
+but the 1.1 specification is still under development.
+
+Neither is it an API-compatible drop-in replacement for projects migrating away
+from DeltaSpike Data.
 
 ## What is Hibernate Data Repositories?
 
-[Hibernate Data Repositories](https://docs.jboss.org/hibernate/orm/current/repositories/html_single/Hibernate_Data_Repositories.html)
+[Hibernate Data Repositories](https://docs.jboss.org/hibernate/orm/6.6/repositories/html_single/Hibernate_Data_Repositories.html)
 is a lightweight compile-time query generation system built into Hibernate ORM
 6+. It supports `@HQL`, `@SQL` and `@Find` method annotations and `Page` for pagination.
 
@@ -141,7 +147,7 @@ HiberSpike Data is designed to be a near drop-in replacement for most
 DeltaSpike Data use cases, but some migration steps are required. Here’s how
 to migrate your project:
 
-### 1. Replace DeltaSpike dependency with HiberSpike Data in pom.xml
+### 1. Replace DeltaSpike Data dependency with HiberSpike Data
 
 Remove `<dependency> ... deltaspike-data-* ... </dependency>` and add
 HiberSpike and Hibernate dependencies to `pom.xml` as described in *How to use
@@ -156,7 +162,7 @@ Data* above.
 ### 3. Create a `EntityManager` producer
 
 Create a `EntityManager` producer method as described in *How to use HiberSpike
-Data* above.
+Data* above or use the producer that was created for DeltaSpike Data.
 
 ### 4. Remove DeltaSpike properties file
 
@@ -167,15 +173,15 @@ Delete `src/main/resources/META-INF/apache-deltaspike.properties`.
 Replace `import org.apache.deltaspike.data.api.EntityRepository;` with `import
 ee.hiberspike.data.EntityRepository;`.
 
-### 6. Remove all DeltaSpike `@Repository` annotations
+### 6. Remove DeltaSpike `@Repository` annotations
 
 HiberSpike Data uses plain repository intefaces, remove the DeltaSpike
 `@Repository` annotation from all your repository interfaces.
 
-### 7. Replace `@Query` with `@HSQL`
+### 7. Replace `@Query` with `@HQL`
 
 Replace DeltaSpike’s `@Query` annotation with Hibernate Data Repositories’
-`@HSQL` annotation from the `org.hibernate.annotations.processing` package,
+`@HQL` annotation from the `org.hibernate.annotations.processing` package,
 which serves a similar purpose:
 
 ```java
@@ -184,13 +190,13 @@ which serves a similar purpose:
 Book findByTitle(String title);
 
 // New
-@HSQL("SELECT b FROM Book b WHERE b.title = ?1")
+@HQL("SELECT b FROM Book b WHERE b.title = ?1")
 Book findByTitle(String title);
 ```
 
-### 8. Annotate all DeltaSpike naming-based queries with `@Find`
+### 8. Annotate all DeltaSpike naming convention-based queries with `@Find`
 
-Annotate DeltaSpike’s naming-based query methods with Hibernate Data
+Annotate DeltaSpike’s naming convention-based query methods with Hibernate Data
 Repositories’ `@Find` annotation from the
 `org.hibernate.annotations.processing` package, which serves a similar purpose:
 
@@ -203,8 +209,13 @@ Book findByTitle(String title);
 Book findByTitle(String title);
 ```
 
-At least one method with either `@HQL`, `@SQL` or `@Find` annotation is
-required in a repository interface to trigger annotation processing.
+Note that
+
+- `hibernate-jpamodelgen` assembles queries based on method parameter names
+  that have to match corresponding entity field names (`String title` has to be
+  a field in the entity class `Book` in the example above),
+- at least one method with either `@HQL`, `@SQL` or `@Find` annotation is
+  required in a repository interface to trigger annotation processing.
 
 ### 9. Pagination: replace `@FirstResult` and `@MaxResults` with `Page`
 
@@ -219,6 +230,47 @@ Book findByAuthor(String author, @FirstResult int firstResult, @MaxResults int m
 @Find
 Book findByAuthor(String author, Page page);
 ```
+## Test projects and usage examples
+
+There are two example test projects in the [tests/](tests/) directory which
+verify the library’s functionality but also serve as practical examples for
+using HiberSpike Data in modern Jakarta EE 10+ applications.
+
+The test projects also demonstrate how to write integration tests that use a
+real database in either Quarkus or WildFly environments.
+
+Before running the tests, make sure to build and install HiberSpike Data to
+your local Maven repository by running `mvn install` at the root of the
+repository.
+
+### Quarkus integration tests ([tests/quarkus-tests](tests/quarkus-tests))
+
+This example project shows how to use HiberSpike Data repositories with
+Quarkus. It uses Quarkus’s `@QuarkusTest` extension, the embedded H2 database
+and illustrates how to inject and work with repositories in a typical Quarkus
+application.
+
+Running the tests with Maven:
+
+```sh
+mvn install
+cd tests/quarkus-tests
+mvn test
+```
+
+### WildFly + Arquillian integration tests ([tests/wildfly-arquillian-tests](tests/wildfly-arquillian-tests)):
+
+This example project demonstrates how to use HiberSpike Data repositories in a
+full Jakarta EE application. The integration tests use H2, WildFly and
+Arquillian with JUnit 5 and are running inside a managed WildFly container.
+
+Running the tests with Maven:
+
+```sh
+mvn install
+cd tests/wildfly-arquillian-tests
+mvn test
+```
 
 ## Why doesn't HiberSpike `EntityRepository` include `count()` and `findBy()`?
 
@@ -229,7 +281,7 @@ repositories. Instead, HiberSpike Data provides two separate repository
 interfaces, `EntityCountRepository` and `EntityWithIdRepository`, that provide
 these methods at the expense of specific limitations. By separating these
 methods into distinct interfaces, HiberSpike Data allows you to opt in to
-additional features, accepting their extra complexity, only when needed.
+additional features, accepting their extra complexity only when needed.
 
 A generic `count()` method requires access to the entity’s class name at
 runtime, but due to Java’s generic type erasure, this information is not easily

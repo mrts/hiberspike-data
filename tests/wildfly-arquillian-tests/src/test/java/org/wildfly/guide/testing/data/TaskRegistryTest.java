@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.wildfly.guide.testing.client;
+package org.wildfly.guide.testing.data;
 
 import java.lang.reflect.Method;
 import java.time.Instant;
@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.wildfly.guide.testing.data.TaskRegistry;
 import org.wildfly.guide.testing.model.Priority;
 import org.wildfly.guide.testing.model.Task;
 

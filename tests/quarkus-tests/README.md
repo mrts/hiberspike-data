@@ -2,8 +2,13 @@
 
 A Quarkus project for integration testing the HiberSpike Data library.
 
-Before running the tests, you need to build and install the `hiberspike-data`
-library into your local Maven repository.
+It uses Quarkus’s `@QuarkusTest` extension, the embedded H2 database and
+illustrates how to inject and work with repositories in a typical Quarkus
+application.
+
+Loosely based on <https://github.com/gavinking/data-demo-quarkus-mvn>.
+
+## Usage
 
 From the project root directory (where `hiberspike-data/pom.xml` is located), run:
 
@@ -14,6 +19,7 @@ mvn install
 Then change to the current `quarkus-tests` directory and run:
 
 ```sh
+cd tests/quarkus-tests
 mvn test
 ```
 
