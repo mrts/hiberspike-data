@@ -22,7 +22,7 @@ These issues will be addressed in the upcoming [Jakarta Data version 1.1](https:
 but the 1.1 specification is still under development.
 
 Neither is it an API-compatible drop-in replacement for projects migrating away
-from DeltaSpike Data.
+from DeltaSpike Data out of the box.
 
 ## What is Hibernate Data Repositories?
 

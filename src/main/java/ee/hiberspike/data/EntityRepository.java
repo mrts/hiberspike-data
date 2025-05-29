@@ -70,7 +70,12 @@ public interface EntityRepository<E, PK extends Serializable> {
      */
     default E save(E entity) {
         Objects.requireNonNull(entity);
-        if (getPrimaryKey(entity) == null) {
+        if (entityManager().contains(entity)) {
+            return entity;
+        }
+        PK primaryKey = getPrimaryKey(entity);
+        if (primaryKey == null ||
+                (primaryKey instanceof Number && ((Number) primaryKey).longValue() == 0L)) {
             entityManager().persist(entity);
             return entity;
         }
@@ -152,7 +157,8 @@ public interface EntityRepository<E, PK extends Serializable> {
     }
 
     /**
-     * Return the id/primary key of the entity. Returns null if the entity does not yet have an id.
+     * Return the id/primary key of the entity. If the entity does not yet have an id,
+     * returns null or, for primitive numeric primary key types, a {@link Number} whose {@code longValue() == 0L}.
      *
      * @param entity The entity.
      * @return id/primary key of the entity

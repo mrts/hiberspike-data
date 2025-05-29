@@ -8,10 +8,10 @@ import org.hibernate.envers.Audited;
 
 @Audited
 @Entity
-public class Author {
+public class Task {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    public String ssn;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    public long id;
 
-    public String name;
+    public String description;
 }
