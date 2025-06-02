@@ -173,6 +173,9 @@ Delete `src/main/resources/META-INF/apache-deltaspike.properties`.
 Replace `import org.apache.deltaspike.data.api.EntityRepository;` with `import
 ee.hiberspike.data.EntityRepository;`.
 
+Also, see *Why doesn't HiberSpike `EntityRepository` include `count()` and
+`findBy()`?* below.
+
 ### 6. Remove DeltaSpike `@Repository` annotations
 
 HiberSpike Data uses plain repository intefaces, remove the DeltaSpike
@@ -274,23 +277,20 @@ mvn test
 
 ## Why doesn't HiberSpike `EntityRepository` include `count()` and `findBy()`?
 
-HiberSpike Data `EntityRepository` does not include `count()`, `findBy()` or
-`findOptionalBy()` that are present in DeltaSpike's `EntityRepository`. This is
-intentional and avoids imposing certain implementation constraints on all
-repositories. Instead, HiberSpike Data provides two separate repository
-interfaces, `EntityCountRepository` and `EntityWithIdRepository`, that provide
-these methods at the expense of specific limitations. By separating these
-methods into distinct interfaces, HiberSpike Data allows you to opt in to
-additional features, accepting their extra complexity only when needed.
+HiberSpike Data base `EntityRepository` intentionally does not include
+`count()`, `findBy()` or `findOptionalBy()` that are present in DeltaSpike's
+`EntityRepository`.
 
-A generic `count()` method requires access to the entity’s class name at
-runtime, but due to Java’s generic type erasure, this information is not easily
-available. To work around this, `EntityCountRepository` requires you to
-override the `getEntityClass()` method, which should simply return the entity
-class:
+The implementation of these methods requires access to the entity’s class at
+runtime, but due to Java’s generic type erasure, this information isn't easily
+available.
+
+To address this, HiberSpike Data provides a separate interface
+`ExtendedEntityRepository` that includes these methods, but requires you to
+override the `getEntityClass()` method to return the entity class:
 
 ```java
-public interface BookRepository extends EntityCountRepository<Book, Long> {
+public interface BookRepository extends ExtendedEntityRepository<Book, Long> {
 
     @Find
     Book findByTitle(String title);
@@ -304,15 +304,9 @@ public interface BookRepository extends EntityCountRepository<Book, Long> {
 }
 ```
 
-The `EntityWithIdRepository` interface provides `E findBy(PK id)` and
-`Optional<E> findOptionalBy(PK id)`, but these methods assume your entity’s
-primary key field is named `id`. This limitation comes from how
-`hibernate-jpamodelgen` assembles queries based on method parameter names.
-
-If your entity uses a different field name for the primary key, code generation
-fails.  By not including `findBy()` and `findOptionalBy()` in the base
-`EntityRepository`, HiberSpike Data avoids making assumptions about your entity
-structure.
+By leaving these methods out of the base `EntityRepository`, you're not forced to
+override `getEntityClass()` in every repository and can opt in to these
+additional features only when needed.
 
 ## Example-based query API is not yet implemented
 

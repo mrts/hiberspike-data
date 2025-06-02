@@ -7,14 +7,14 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
-class AuthorCountRepositoryTest {
+class AuthorRepositoryExtendedTest {
 
     @Inject
-    AuthorCountRepository authorCountRepository;
+    AuthorRepositoryExtended authorRepository;
 
     @Test
     void count_returnsCorrectNumberOfAuthors() {
-        Long authorsCount = authorCountRepository.count();
+        Long authorsCount = authorRepository.count();
         assertEquals(2, authorsCount);
     }
 

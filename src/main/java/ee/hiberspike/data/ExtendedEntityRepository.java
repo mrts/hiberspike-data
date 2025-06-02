@@ -9,17 +9,40 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 
 import java.io.Serializable;
+import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 /**
- * Adds the {@link #count()} operation to {@link EntityRepository}.
+ * Adds the {@link #findBy(PK id)}, {@link #findOptionalBy(PK id)} and {@link #count()} operations to {@link EntityRepository}.
  * <p>
  * Extending repositories must provide the entity's class with
  * {@code @Override default Class<EntityType> getEntityClass() { return EntityType.class; } }
  *
  * @param <E> Entity type.
  */
-public interface EntityCountRepository<E, PK extends Serializable>
+public interface ExtendedEntityRepository<E, PK extends Serializable>
         extends EntityRepository<E, PK> {
+
+    /**
+     * Entity lookup by ID/primary key.
+     *
+     * @param id Entity ID field, DB primary key.
+     * @return Entity identified by primary key or null if it does not exist.
+     */
+    default E findBy(PK id) {
+        return entityManager().find(getEntityClass(), id);
+    }
+
+    /**
+     * Entity lookup by ID/primary key.
+     *
+     * @param id Entity ID field, DB primary key.
+     * @return Entity identified by primary key or null if it does not exist, wrapped by Optional.
+     */
+    default Optional<E> findOptionalBy(PK id) {
+        return ofNullable(findBy(id));
+    }
 
     /**
      * Count all existing entities of entity class {@code <E>}.
