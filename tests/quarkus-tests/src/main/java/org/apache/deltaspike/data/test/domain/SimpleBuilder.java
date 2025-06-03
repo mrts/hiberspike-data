@@ -16,26 +16,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.deltaspike.data.test.domain;
 
-package org.apache.deltaspike.data.test.service;
+import jakarta.persistence.EntityManager;
 
-import ee.hiberspike.data.EntityRepository;
-import org.apache.deltaspike.data.test.domain.Simple;
-import org.hibernate.annotations.processing.Find;
-import org.hibernate.annotations.processing.SQL;
-
-import java.util.List;
-
-public interface SimpleIntermediateRepository extends EntityRepository<Simple, Long>
+public class SimpleBuilder
 {
-    // DELTASPIKE:
-    //    @Query(hints = {
-    //            @QueryHint(name = "openjpa.hint.OptimizeResultCount", value = "some.invalid.value"),
-    //            @QueryHint(name = "org.hibernate.comment", value = "I'm a little comment short and stout")
-    //    })
-    @Find
-    Simple findBy(Long id);
 
-    @SQL("select name from simple_table")
-    List<String> findAllNames();
+    private final EntityManager entityManager;
+
+    public SimpleBuilder(EntityManager entityManager)
+    {
+        this.entityManager = entityManager;
+    }
+
+    public Simple createSimple(String name, Integer counter)
+    {
+        Simple result = new Simple(name);
+        result.setCounter(counter);
+        return persistSimple(result);
+    }
+
+    public Simple createSimple(String name)
+    {
+        Simple result = new Simple(name);
+        return persistSimple(result);
+    }
+
+    public Simple persistSimple(Simple result)
+    {
+        entityManager.persist(result);
+        entityManager.flush();
+        return result;
+    }
+
 }

@@ -127,6 +127,12 @@ processing, then `hibernate-jpamodelgen` (see `maven-compiler-plugin`
 configuration below) will generate a `BookRepository_` implementation at
 compile time.
 
+To learn more about HQL and JPQL, see the 
+[_Guide to Hibernate Query Language_](https://docs.jboss.org/hibernate/orm/6.6/querylanguage/html_single/Hibernate_Query_Language.html).
+For practical examples of how to use `@HQL` for advanced cases such as deletes,
+updates, counting, case-insensitive searches, top-N queries etc, see _Porting
+DeltaSpike convention-based methods to HQL_ below.
+
 ### 5. Inject and use the repository
 
 ```java
@@ -204,11 +210,11 @@ Book findByTitle(String title);
 Book findByTitle(String title);
 ```
 
-### 8. Annotate all DeltaSpike naming convention-based queries with `@Find`
+### 8. Annotate all DeltaSpike naming convention-based methods with `@Find` or `@HQL`
 
-Annotate DeltaSpike’s naming convention-based query methods with Hibernate Data
-Repositories’ `@Find` annotation from the
-`org.hibernate.annotations.processing` package, which serves a similar purpose:
+DeltaSpike Data supports generating queries based on method naming conventions,
+but Hibernate Data Repositories require queries to be defined explicitly with
+annotations:
 
 ```java
 // Old
@@ -219,13 +225,73 @@ Book findByTitle(String title);
 Book findByTitle(String title);
 ```
 
-Note that
+To port DeltaSpike convention-based methods:
 
-- `hibernate-jpamodelgen` assembles queries based on method parameter names
-  that have to match corresponding entity field names (`String title` has to be
-  a field in the entity class `Book` in the example above),
+- for simple `findBy{fieldname}` queries, add the `@Find` annotation; note
+  that `hibernate-jpamodelgen` assembles queries based on method parameter
+  names that have to match entity field names (`String title` has
+  to be a field in the entity class `Book` in the example above),
+- use `@OrderBy` and `@Param` as needed,
+- for more complex and modifying queries, use `@HQL` and write the filtering
+  logic in the HQL expression, see _Porting DeltaSpike convention-based methods
+  to HQL_ below,
 - at least one method with either `@HQL`, `@SQL` or `@Find` annotation is
   required in a repository interface to trigger annotation processing.
+
+#### Porting DeltaSpike convention-based methods to HQL
+
+`@HQL` gives you full control over your queries with compile-time checking and
+none of the limitations of naming conventions. It is intended for advanced cases
+such as deletes, updates, counting, case-insensitive searches, top-N queries
+etc.
+
+To learn more about HQL and JPQL, see the 
+[_Guide to Hibernate Query Language_](https://docs.jboss.org/hibernate/orm/6.6/querylanguage/html_single/Hibernate_Query_Language.html).
+
+A few examples:
+
+```java
+// DeltaSpike
+Book findByTitleLikeIgnoreCase(String title);
+
+// Hibernate Data
+@HQL("where title ilike :title")
+Book findByTitleLikeIgnoreCase(String title);
+```
+
+```java
+// DeltaSpike
+List<Book> findFirst2ByTitle(String title);
+
+// Hibernate Data
+@HQL("where title = :title order by id limit 2")
+List<Book> findFirst2ByTitle(String title);
+```
+
+```java
+// DeltaSpike
+long countByTitle(String title);
+
+// Hibernate Data
+@HQL("select count(b) from Book b where title = :title")
+long countByTitle(String title);
+```
+
+```java
+// DeltaSpike
+void deleteByTitleAndAvailable(String title, boolean available);
+
+// Hibernate Data
+@HQL("delete from Book where title = :title and available = :available")
+void deleteByTitleAndAvailable(String title, boolean available);
+```
+
+For a complete method-by-method migration example, see the following files in the test project:
+
+| DeltaSpike | HiberSpike |
+| ---------- | ---------- |
+| [DeltaSpike SimpleRepository](https://github.com/apache/deltaspike/blob/master/deltaspike/modules/data/impl/src/test/java/org/apache/deltaspike/data/test/service/SimpleRepository.java) | [HiberSpike SimpleRepository](https://github.com/mrts/hiberspike-data/blob/main/tests/quarkus-tests/src/main/java/org/apache/deltaspike/data/test/service/SimpleRepository.java) |
+| [DeltaSpike QueryHandlerTest](https://github.com/apache/deltaspike/blob/master/deltaspike/modules/data/impl/src/test/java/org/apache/deltaspike/data/impl/handler/QueryHandlerTest.java) | [HiberSpike QueryHandlerTest](https://github.com/mrts/hiberspike-data/blob/main/tests/quarkus-tests/src/test/java/org/apache/deltaspike/data/impl/handler/QueryHandlerTest.java) |
 
 ### 9. Pagination: replace `@FirstResult` and `@MaxResults` with `Page`
 

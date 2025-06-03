@@ -16,26 +16,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.deltaspike.data.test.domain;
 
-package org.apache.deltaspike.data.test.service;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 
-import ee.hiberspike.data.EntityRepository;
-import org.apache.deltaspike.data.test.domain.Simple;
-import org.hibernate.annotations.processing.Find;
-import org.hibernate.annotations.processing.SQL;
-
-import java.util.List;
-
-public interface SimpleIntermediateRepository extends EntityRepository<Simple, Long>
+@Entity
+public class Simple2
 {
-    // DELTASPIKE:
-    //    @Query(hints = {
-    //            @QueryHint(name = "openjpa.hint.OptimizeResultCount", value = "some.invalid.value"),
-    //            @QueryHint(name = "org.hibernate.comment", value = "I'm a little comment short and stout")
-    //    })
-    @Find
-    Simple findBy(Long id);
 
-    @SQL("select name from simple_table")
-    List<String> findAllNames();
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    private String name;
+
+    public Simple2()
+    {
+    }
+
+    public Simple2(String name)
+    {
+        this.name = name;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public Long getId()
+    {
+        return id;
+    }
+
 }

@@ -25,11 +25,11 @@ import org.hibernate.annotations.processing.HQL;
 
 public interface ExtendedRepositoryInterface extends ExtendedEntityRepository<Simple, Long> {
 
-    // TODO: @Query(lock = PESSIMISTIC_READ)
+    // DELTASPIKE: @Query(lock = PESSIMISTIC_READ)
     @Find
     Simple findByName(String name);
 
-    // TODO: @Query(named = Simple.BY_NAME_LIKE)
+    // DELTASPIKE: @Query(named = Simple.BY_NAME_LIKE)
     @HQL("select e from Simple e where e.name like ?1")
     Simple findByNameNoLock(String name);
 
