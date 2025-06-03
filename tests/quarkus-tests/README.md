@@ -6,7 +6,8 @@ It uses Quarkus’s `@QuarkusTest` extension, the embedded H2 database and
 illustrates how to inject and work with repositories in a typical Quarkus
 application.
 
-Loosely based on <https://github.com/gavinking/data-demo-quarkus-mvn>.
+Loosely based on <https://github.com/gavinking/data-demo-quarkus-mvn> and
+[DeltaSpike tests](https://github.com/apache/deltaspike/blob/master/deltaspike/modules/data/impl/src/test/java/org/apache/deltaspike/data/impl/handler/EntityRepositoryHandlerTest.java).
 
 ## Usage
 
