@@ -8,7 +8,14 @@ and designed for Jakarta EE 10+ applications.
 
 ## Why HiberSpike Data?
 
-DeltaSpike Data is no longer actively maintained and doesn’t officially support the `jakarta` namespace and Jakarta EE 9+. HiberSpike Data provides a near drop-in replacement for DeltaSpike Data `EntityRepository` interface for Jakarta EE 10+ applications. It uses stateful sessions and is compatible with Hibernate Envers, lazy loading etc.
+DeltaSpike Data is no longer actively maintained and doesn’t officially support
+the `jakarta` namespace and Jakarta EE 9+. HiberSpike Data provides a near
+drop-in replacement for DeltaSpike Data `EntityRepository` interface for
+Jakarta EE 10+ applications. It uses [Hibernate’s stateful sessions](https://docs.jboss.org/hibernate/orm/7.0/introduction/html_single/Hibernate_Introduction.html#stateful-and-stateless-sessions)
+and is compatible with Hibernate Envers, lazy loading etc.
+
+> **Note:** [Hibernate’s stateful and stateless sessions](https://docs.jboss.org/hibernate/orm/7.0/introduction/html_single/Hibernate_Introduction.html#stateful-and-stateless-sessions)
+> are unrelated to EJB stateful or stateless session beans.
 
 ## Why not Jakarta Data 1.0?
 

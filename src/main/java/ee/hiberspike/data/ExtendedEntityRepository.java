@@ -19,7 +19,8 @@ import static java.util.Optional.ofNullable;
  * Extending repositories must provide the entity's class with
  * {@code @Override default Class<EntityType> getEntityClass() { return EntityType.class; } }
  *
- * @param <E> Entity type.
+ * @param <E>  Entity type.
+ * @param <PK> Primary key type.
  */
 public interface ExtendedEntityRepository<E, PK extends Serializable>
         extends EntityRepository<E, PK> {
@@ -57,7 +58,7 @@ public interface ExtendedEntityRepository<E, PK extends Serializable>
     }
 
     /**
-     * Returns the {@link Class} object that represents the entity
+     * Must return the {@link Class} object that represents the entity
      * type {@code <E>} managed by this repository.
      * <p>
      * Should be implemented with a simple
