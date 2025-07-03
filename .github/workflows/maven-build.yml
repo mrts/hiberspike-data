@@ -32,3 +32,11 @@ jobs:
           popd
           pushd tests/wildfly-arquillian-tests
           mvn --batch-mode test
+          popd
+          pushd examples/multi-em-ear
+          mvn --batch-mode package
+          # test that deployment works
+          cp ear-assembly/target/multi-em-ear-assembly-1.0.0-SNAPSHOT.ear ../../tests/wildfly-arquillian-tests/target/wildfly/standalone/deployments/
+          popd
+          pushd tests/wildfly-arquillian-tests
+          mvn --batch-mode test

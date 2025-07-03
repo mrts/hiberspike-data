@@ -32,7 +32,7 @@ public interface ExtendedEntityRepository<E, PK extends Serializable>
      * @return Entity identified by primary key or null if it does not exist.
      */
     default E findBy(PK id) {
-        return entityManager().find(getEntityClass(), id);
+        return session().find(getEntityClass(), id);
     }
 
     /**
@@ -51,10 +51,10 @@ public interface ExtendedEntityRepository<E, PK extends Serializable>
      * @return Counter.
      */
     default Long count() {
-        CriteriaBuilder cb = entityManager().getCriteriaBuilder();
+        CriteriaBuilder cb = session().getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         cq.select(cb.count(cq.from(getEntityClass())));
-        return entityManager().createQuery(cq).getSingleResult();
+        return session().createQuery(cq).getSingleResult();
     }
 
     /**

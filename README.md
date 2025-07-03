@@ -21,7 +21,7 @@ and is compatible with Hibernate Envers, lazy loading etc.
 
 [Jakarta Data 1.0](https://jakarta.ee/specifications/data/1.0/) uses stateless
 sessions, which breaks compatibility with Hibernate Envers and lazy loading,
-and lacks support for Jakarta Persistance annotations like `@Persist`, `@Merge`,
+and lacks support for Jakarta Persistence annotations like `@Persist`, `@Merge`,
 `@Remove` etc that would give access to the corresponding operations of
 `EntityManager`.
 
@@ -91,21 +91,21 @@ Add the `hibernate-jpamodelgen` plugin to `pom.xml` under `maven-compiler-plugin
 
 Maven compiler plugin version 3.13 or higher is required.
 
-### 3. Create a `EntityManager` producer
+### 3. Create a `Session` producer
 
-The generated repository implementations use CDI to inject `EntityManager`, so a
-`EntityManager` producer method is required.
+The generated repository implementations use CDI to inject
+`org.hibernate.Session`, so a `Session` producer method is required.
 
 ```java
-@RequestScoped
-public class EntityManagerProducer {
+@Dependent
+public class SessionProducer {
 
-    @PersistenceContext(type = PersistenceContextType.EXTENDED)
+    @PersistenceContext
     private EntityManager em;
 
     @Produces
-    public EntityManager entityManager() {
-        return em;
+    public Session session() {
+        return em.unwrap(Session.class);
     }
 }
 ```
@@ -172,10 +172,11 @@ Add the `hibernate-jpamodelgen` plugin to `pom.xml` under
 `maven-compiler-plugin` configuration as described in *How to use HiberSpike
 Data* above.
 
-### 3. Create a `EntityManager` producer
+### 3. Create a `Session` producer
 
-Create a `EntityManager` producer method as described in *How to use HiberSpike
-Data* above or use the producer that was created for DeltaSpike Data.
+Create a `Session` producer method as described in *How to use HiberSpike Data*
+above or change the `EntityManager` producer that was used by DeltaSpike Data
+to produce a `Session` instead.
 
 ### 4. Remove DeltaSpike properties file
 
@@ -183,8 +184,8 @@ Delete `src/main/resources/META-INF/apache-deltaspike.properties`.
 
 ### 5. Update repository imports
 
-Replace `import org.apache.deltaspike.data.api.EntityRepository;` with `import
-ee.hiberspike.data.EntityRepository;`.
+Replace `import org.apache.deltaspike.data.api.EntityRepository` with `import
+ee.hiberspike.data.EntityRepository`.
 
 Also, see *Why doesn't HiberSpike `EntityRepository` include `count()` and
 `findBy()`?* below.
@@ -346,6 +347,49 @@ Running the tests with Maven:
 mvn install
 cd tests/wildfly-arquillian-tests
 mvn test
+```
+
+### Using different persistence units ([examples/multi-em-ear](examples/multi-em-ear)):
+
+This example project contains two repositories that use different persistence
+units.
+
+Qualifier annotations can be used with producer methods to inject different
+persistence units into repositories as follows:
+
+1. Added a qualifier annotation to discern different persistence units:
+
+```java
+@Target({ElementType.TYPE_USE, ElementType.METHOD, ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+@Qualifier
+public @interface FooAQualifier {
+}
+```
+2. Create a producer method with the qualifier:
+```
+@ApplicationScoped
+public class EmProducerA {
+    @PersistenceContext(unitName = "pu-a")
+    EntityManager em;
+
+    @Produces
+    @FooAQualifier
+    Session fooASession() {
+        return em.unwrap(Session.class);
+    }
+}
+```
+3. Override the repository interface special method `Session session()` and add the qualifier:
+```java
+public interface FooARepository extends EntityRepository<FooA, Long> {
+    @Find
+    FooA findByIdUnused(Long id);
+
+    @Override
+    @FooAQualifier
+    Session session();
+}
 ```
 
 ## Why doesn't HiberSpike `EntityRepository` include `count()` and `findBy()`?

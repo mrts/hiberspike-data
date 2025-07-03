@@ -6,7 +6,7 @@
 
 package ee.hiberspike.data;
 
-import jakarta.persistence.EntityManager;
+import org.hibernate.Session;
 import org.hibernate.annotations.processing.Find;
 import org.hibernate.query.Page;
 
@@ -28,7 +28,7 @@ public interface EntityRepository<E, PK extends Serializable> {
 
     // Used below in default methods, but also gives a hint to use stateful sessions to the annotation processor, see
     // https://docs.jboss.org/hibernate/orm/6.6/introduction/html_single/Hibernate_Introduction.html#static-or-instance
-    EntityManager entityManager();
+    Session session();
 
     /**
      * Lookup all existing entities of entity class {@code <E>}.
@@ -62,7 +62,7 @@ public interface EntityRepository<E, PK extends Serializable> {
      * Persist (new entity) or merge the given entity. The distinction on calling either
      * method is done based on the primary key field being null or not.
      * If this results in wrong behavior for a specific case, consider using the
-     * {@code entityManager()} directly, which offers both
+     * {@code session()} directly, which offers both
      * {@code persist} and {@code merge}.
      *
      * @param entity Entity to save.
@@ -70,16 +70,16 @@ public interface EntityRepository<E, PK extends Serializable> {
      */
     default E save(E entity) {
         Objects.requireNonNull(entity);
-        if (entityManager().contains(entity)) {
+        if (session().contains(entity)) {
             return entity;
         }
         PK primaryKey = getPrimaryKey(entity);
         if (primaryKey == null ||
                 (primaryKey instanceof Number && ((Number) primaryKey).longValue() == 0L)) {
-            entityManager().persist(entity);
+            session().persist(entity);
             return entity;
         }
-        return entityManager().merge(entity);
+        return session().merge(entity);
     }
 
     /**
@@ -108,16 +108,16 @@ public interface EntityRepository<E, PK extends Serializable> {
     }
 
     /**
-     * Convenience access to {@link jakarta.persistence.EntityManager#remove(Object)}.
+     * Convenience access to {@link org.hibernate.Session#remove(Object)}.
      *
      * @param entity Entity to remove.
      */
     default void remove(E entity) {
-        entityManager().remove(entity);
+        session().remove(entity);
     }
 
     /**
-     * Convenience access to {@link jakarta.persistence.EntityManager#remove(Object)}
+     * Convenience access to {@link org.hibernate.Session#remove(Object)}
      * with a following flush.
      *
      * @param entity Entity to remove.
@@ -128,39 +128,39 @@ public interface EntityRepository<E, PK extends Serializable> {
     }
 
     /**
-     * Convenience access to {@link jakarta.persistence.EntityManager#remove(Object)}
+     * Convenience access to {@link org.hibernate.Session#remove(Object)}
      * with a detached entity.
      *
      * @param entity Entity to remove.
      */
     default void attachAndRemove(E entity) {
-        if (!entityManager().contains(entity)) {
-            entity = entityManager().merge(entity);
+        if (!session().contains(entity)) {
+            entity = session().merge(entity);
         }
         remove(entity);
     }
 
     /**
-     * Convenience access to {@link jakarta.persistence.EntityManager#refresh(Object)}.
+     * Convenience access to {@link org.hibernate.Session#refresh(Object)}.
      *
      * @param entity Entity to refresh.
      */
     default void refresh(E entity) {
-        entityManager().refresh(entity);
+        session().refresh(entity);
     }
 
     /**
-     * Convenience access to {@link jakarta.persistence.EntityManager#flush()}.
+     * Convenience access to {@link org.hibernate.Session#flush()}.
      */
     default void flush() {
-        entityManager().flush();
+        session().flush();
     }
 
     /**
-     * Convenience access to {@link jakarta.persistence.EntityManager#detach()}.
+     * Convenience access to {@link org.hibernate.Session#detach()}.
      */
     default void detach(E entity) {
-        entityManager().detach(entity);
+        session().detach(entity);
     }
 
     /**
@@ -172,7 +172,7 @@ public interface EntityRepository<E, PK extends Serializable> {
      */
     @SuppressWarnings("unchecked")
     default PK getPrimaryKey(E entity) {
-        return (PK) entityManager().getEntityManagerFactory()
+        return (PK) session().getEntityManagerFactory()
                 .getPersistenceUnitUtil()
                 .getIdentifier(entity);
     }
