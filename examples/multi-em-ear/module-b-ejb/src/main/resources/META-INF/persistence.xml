@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.0">
+    <persistence-unit name="pu-b">
+        <jta-data-source>jdbc/DSB</jta-data-source>
+        <properties>
+            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+        </properties>
+    </persistence-unit>
+</persistence>

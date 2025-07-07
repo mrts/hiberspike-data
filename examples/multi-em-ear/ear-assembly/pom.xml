@@ -1,0 +1,49 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ee.hiberspike.examples</groupId>
+        <artifactId>multi-em-ear</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>multi-em-ear-assembly</artifactId>
+    <packaging>ear</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>module-a-ejb</artifactId>
+            <version>${project.version}</version>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>module-b-ejb</artifactId>
+            <version>${project.version}</version>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.224</version>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-ear-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <defaultLibBundleDir>lib</defaultLibBundleDir>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

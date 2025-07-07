@@ -32,3 +32,6 @@ jobs:
           popd
           pushd tests/wildfly-arquillian-tests
           mvn --batch-mode test
+          popd
+          pushd examples/multi-em-ear
+          mvn --batch-mode package
