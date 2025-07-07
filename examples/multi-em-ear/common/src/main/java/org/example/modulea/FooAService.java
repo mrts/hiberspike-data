@@ -4,5 +4,5 @@ import jakarta.ejb.Local;
 
 @Local
 public interface FooAService {
-    long saveAndCount(FooA foo);
+    long saveAndCountFooA();
 }

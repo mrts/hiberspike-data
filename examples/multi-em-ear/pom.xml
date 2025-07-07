@@ -10,6 +10,7 @@
         <module>common</module>
         <module>module-a-ejb</module>
         <module>module-b-ejb</module>
+        <module>vaadin-web</module>
         <module>ear-assembly</module>
     </modules>
 

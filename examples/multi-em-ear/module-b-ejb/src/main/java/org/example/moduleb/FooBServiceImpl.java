@@ -10,8 +10,9 @@ public class FooBServiceImpl implements FooBService {
     @Inject
     FooBRepository repo;
 
-    public List<FooB> saveAndFindAll(FooB foo) {
-        repo.saveAndFlush(foo);
-        return repo.findAll();
+    @Override
+    public String saveAndFindAllFooB() {
+        repo.saveAndFlush(new FooB());
+        return repo.findAll().toString();
     }
 }

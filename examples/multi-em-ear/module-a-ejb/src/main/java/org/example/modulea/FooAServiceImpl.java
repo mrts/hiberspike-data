@@ -8,8 +8,9 @@ public class FooAServiceImpl implements FooAService {
     @Inject
     FooARepository repo;
 
-    public long saveAndCount(FooA foo) {
-        repo.saveAndFlush(foo);
+    @Override
+    public long saveAndCountFooA() {
+        repo.saveAndFlush(new FooA());
         return repo.count();
     }
 }
