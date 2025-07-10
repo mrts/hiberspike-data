@@ -91,22 +91,20 @@ Add the `hibernate-jpamodelgen` plugin to `pom.xml` under `maven-compiler-plugin
 
 Maven compiler plugin version 3.13 or higher is required.
 
-### 3. Create a `EntityManager` producer
+### 3. Create an `EntityManager` producer
 
-The generated repository implementations use CDI to inject `EntityManager`, so a
-`EntityManager` producer method is required.
+The generated repository implementations use CDI to inject `EntityManager`, so
+an `EntityManager` producer is required. You can either use
+[a producer field or a producer method](https://jakarta.ee/learn/docs/jakartaee-tutorial/9.1/cdi/cdi-adv/cdi-adv.html#_using_producer_methods_producer_fields_and_disposer_methods_in_cdi_applications).
 
 ```java
-@RequestScoped
+@Dependent
 public class EntityManagerProducer {
 
-    @PersistenceContext(type = PersistenceContextType.EXTENDED)
+    @Produces // producer field
+    @Dependent
+    @PersistenceContext
     private EntityManager em;
-
-    @Produces
-    public EntityManager entityManager() {
-        return em;
-    }
 }
 ```
 
