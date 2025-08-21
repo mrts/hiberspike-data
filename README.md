@@ -4,6 +4,8 @@
 of the [DeltaSpike Data `EntityRepository`](https://deltaspike.apache.org/documentation/data.html#_the_entityrepository_interface)
 interface for Jakarta EE 10+ applications, built using [Hibernate Data Repositories](https://docs.jboss.org/hibernate/orm/6.6/repositories/html_single/Hibernate_Data_Repositories.html).
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.mrts/hiberspike-data.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.mrts/hiberspike-data)
+
 ## Why HiberSpike Data?
 
 DeltaSpike Data is no longer actively maintained and doesn’t officially support
