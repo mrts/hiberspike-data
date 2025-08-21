@@ -26,8 +26,13 @@ import java.util.Objects;
  */
 public interface EntityRepository<E, PK extends Serializable> {
 
-    // Used below in default methods, but also gives a hint to use stateful sessions to the annotation processor, see
-    // https://docs.jboss.org/hibernate/orm/6.6/introduction/html_single/Hibernate_Introduction.html#static-or-instance
+    /**
+     * Convenience access to {@link EntityManager}.
+     * <p>
+     * Used below in default methods, but also gives a hint to use stateful sessions to the annotation processor, see
+     * <a href="https://docs.jboss.org/hibernate/orm/6.6/introduction/html_single/Hibernate_Introduction.html#static-or-instance">Hibernate documentation</a>
+     * for a longer explanation.
+     */
     EntityManager entityManager();
 
     /**
@@ -157,7 +162,9 @@ public interface EntityRepository<E, PK extends Serializable> {
     }
 
     /**
-     * Convenience access to {@link jakarta.persistence.EntityManager#detach()}.
+     * Convenience access to {@link jakarta.persistence.EntityManager#detach(Object)}.
+     *
+     * @param entity Entity to detach.
      */
     default void detach(E entity) {
         entityManager().detach(entity);

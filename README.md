@@ -53,7 +53,7 @@ Add the following lines to `pom.xml` under `<dependencies>`:
         <scope>provided</scope>
     </dependency>
     <dependency>
-        <groupId>ee.hiberspike</groupId>
+        <groupId>io.github.mrts</groupId>
         <artifactId>hiberspike-data</artifactId>
         <version>${hiberspike-data.version}</version>
     </dependency>
